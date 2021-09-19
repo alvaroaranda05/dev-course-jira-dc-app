@@ -1,0 +1,124 @@
+<html>
+<head>
+    <title>$i18n.getText("admin-page.title")</title>
+
+    $webResourceManager.requireResource("com.deiser.jira.dc:dc-resources")
+
+    <script>
+
+        const getConfiguration = async function () {
+            AJS.$('tbody>tr').remove();
+            createLoadingRow();
+            const response = await fetch('/rest/dc/1.0/configuration');
+            const configuration = await response.json();
+
+            if (configuration.length > 0) {
+                AJS.$('tbody>tr').remove();
+                configuration.forEach(function (config) {
+                    createRow(config)
+                })
+            } else {
+                AJS.$('tbody>tr').remove('');
+                createEmptyRow();
+            }
+        }
+
+        const createConfiguration = async function (key, value) {
+            await fetch('/rest/dc/1.0/configuration/' + key, {
+                method: 'POST',
+                body: value,
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            await getConfiguration();
+        }
+
+        const deleteConfiguration = async function (key) {
+            await fetch('/rest/dc/1.0/configuration/' + key, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            await getConfiguration();
+        }
+
+        const cellDelete = function (key) {
+            return "<td headers='head-delete'><button type='button' class='button-delete-config' onclick='deleteConfiguration(\"" + key + "\")'>Delete</button></td>";
+        }
+
+        const createRow = function (configuration) {
+            AJS.$('tbody').append("<tr id='row" + configuration.key + "'><td headers='head-key'>" + configuration.key + "</td><td headers='head-value'>" + configuration.value + "</td>" + cellDelete(configuration.key) + "</tr>")
+        }
+
+        const createEmptyRow = function () {
+            AJS.$('tbody').append("<tr id='emptyRow'><td headers='head-key' colspan='3'>Empty</td></tr>")
+        }
+
+        const createLoadingRow = function () {
+            AJS.$('tbody').append("<tr id='loadingRow'><td headers='head-key' colspan='3'>Loading</td></tr>")
+        }
+
+        AJS.$(document).ready(function () {
+            getConfiguration();
+
+            AJS.$('#button-create-config').click(function (event) {
+                createConfiguration(AJS.$('#create-key').val(), AJS.$('#create-value').val());
+                event.preventDefault();
+                AJS.$('#create-key').val('');
+                AJS.$('#create-value').val('');
+            });
+        })
+    </script>
+
+</head>
+<body>
+<section id="admin-page-container" class="dc-page-container">
+
+    <div id="user-info"></div>
+
+    <div id="table-configuration">
+        <table class="aui">
+            <thead>
+            <tr>
+                <th id="head-key">Key</th>
+                <th id="head-value">Value</th>
+                <th id="head-delete"></th>
+            </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+
+    </div>
+
+    <div id="create-config">
+        <form class="aui" onSubmit="javascript:function(e){return false:}">
+            <fieldset>
+                <legend><span>Create component</span></legend>
+                <div class="field-group">
+                    <label for="key">Key</label>
+                    <input class="text" type="text" id="create-key" name="key" title="Key">
+                </div>
+                <div class="field-group">
+                    <label for="value">Value</label>
+                    <input class="text" type="text" id="create-value" name="value" title="Value">
+                </div>
+                <div class="buttons-container">
+                    <div class="buttons">
+                        <button class="aui-button aui-button-primary" id="button-create-config" type="submit">Save
+                        </button>
+                    </div>
+                </div>
+            </fieldset>
+        </form>
+    </div>
+
+</section>
+
+<script>
+
+</script>
+</body>
+</html>

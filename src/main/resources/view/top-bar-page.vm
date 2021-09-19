@@ -1,0 +1,27 @@
+<html>
+<head>
+    <title>$i18n.getText("top-bar-page.title")</title>
+
+    $webResourceManager.requireResource("com.deiser.jira.dc:dc-resources")
+</head>
+<body>
+    <section id="top-bar-page-container" class="dc-page-container">
+        <h3>$i18n.getText("top-bar-page.logged-user.title")</h3>
+        <span>${loggedUserWithHtml}</span>
+
+        <h3>$i18n.getText("top-bar-page.projects.title")</h3>
+        <ul>
+        #foreach($project in $projectsWithHtml)
+            <li>$project</li>
+        #end
+        </ul>
+
+        <h3>$i18n.getText("top-bar-page.fields.title")</h3>
+        <ul>
+            #foreach($field in $fieldsWithHtml)
+                <li>$field</li>
+            #end
+        </ul>
+    </section>
+</body>
+</html>

@@ -1,0 +1,181 @@
+<atlassian-plugin key="${project.groupId}.${project.artifactId}" name="${project.name}" plugins-version="2">
+    <plugin-info>
+        <description>${project.description}</description>
+        <version>${project.version}</version>
+        <vendor name="${project.organization.name}" url="${project.organization.url}"/>
+        <param name="plugin-icon">images/pluginIcon.png</param>
+        <param name="plugin-logo">images/pluginLogo.png</param>
+    </plugin-info>
+
+    <!-- Atlassian components -->
+
+    <component-import key="atlassianPluginAccessor" name="Atlassian Plugin Accessor"
+                      interface="com.atlassian.plugin.PluginAccessor"/>
+    <component-import key="atlassianGlobalPermissionManager" name="Atlassian Global Permission Manager"
+                      interface="com.atlassian.jira.security.GlobalPermissionManager"/>
+    <component-import key="atlassianUserUtil" name="Atlassian User Util"
+                      interface="com.atlassian.jira.user.util.UserUtil"/>
+    <component-import key="atlassianPermissionManager" name="Atlassian Permission Manager"
+                      interface="com.atlassian.jira.security.PermissionManager"/>
+    <component-import key="atlassianJiraAuthenticationContext" name="Atlassian Jira Authentication Context"
+                      interface="com.atlassian.jira.security.JiraAuthenticationContext"/>
+    <component-import key="atlassianGroupManager" name="Atlassian Group Manager"
+                      interface="com.atlassian.jira.security.groups.GroupManager"/>
+    <component-import key="atlassianProjectManager" name="Atlassian Project Manager"
+                      interface="com.atlassian.jira.project.ProjectManager"/>
+    <component-import key="atlassianActiveObjects" name="Atlassian Active Objects"
+                      interface="com.atlassian.activeobjects.external.ActiveObjects"/>
+    <component-import key="atlassianI18nResolver" name="Atlassian I18n Resolver"
+                      interface="com.atlassian.sal.api.message.I18nResolver"/>
+    <component-import key="atlassianI18nHelper" name="Atlassian I18n Helper"
+                      interface="com.atlassian.jira.util.I18nHelper"/>
+    <component-import key="atlassianUserManager" name="Atlassian User Manager"
+                      interface="com.atlassian.sal.api.user.UserManager"/>
+    <component-import key="atlassianPluginController" name="Atlassian Plugin Controller"
+                      interface="com.atlassian.plugin.PluginController"/>
+    <component-import key="atlassianPluginLicenseEventRegistry" name="Atlassian Plugin License Event Registry"
+                      interface="com.atlassian.upm.api.license.PluginLicenseEventRegistry"/>
+    <component-import key="atlassianPluginLicenseManager" name="Atlassian Plugin License Manager"
+                      interface="com.atlassian.upm.api.license.PluginLicenseManager"/>
+    <component-import key="atlassianTransactionTemplate" name="Atlassian Transaction Template"
+                      interface="com.atlassian.sal.api.transaction.TransactionTemplate"/>
+    <component-import key="atlassianTemplateRenderer" name="Atlassian Transaction Template"
+                      interface="com.atlassian.templaterenderer.TemplateRenderer"/>
+    <component-import key="atlassianPluginSettingsFactory" name="Atlassian Plugin Settings Factory"
+                      interface="com.atlassian.sal.api.pluginsettings.PluginSettingsFactory"/>
+    <component-import key="atlassianLoginUriProvider" name="Atlassian Login Uri Provider"
+                      interface="com.atlassian.sal.api.auth.LoginUriProvider"/>
+    <component-import key="atlassianPluginScheduler" name="Atlassian Plugin Scheduler"
+                      interface="com.atlassian.sal.api.scheduling.PluginScheduler"/>
+    <component-import key="CacheManager" name="Cache Manager"
+                      interface="com.atlassian.cache.CacheManager"/>
+    <component key="atlassianJiraDurationUtils" name="Atlassian JIRA Duration Utils"
+               class="com.atlassian.jira.util.JiraDurationUtils"/>
+
+
+    <!-- add our i18n resource -->
+    <resource type="i18n" name="i18n" location="i18n/dc"/>
+
+    <!-- add our web resources -->
+    <web-resource key="dc-resources" name="dc Web Resources">
+        <dependency>com.atlassian.auiplugin:ajs</dependency>
+        <dependency>com.atlassian.auiplugin:aui-table</dependency>
+        <dependency>com.atlassian.auiplugin:aui-forms</dependency>
+
+        <resource type="download" name="dc.css" location="/css/dc.css"/>
+        <resource type="download" name="dc.js" location="/js/dc.js"/>
+        <resource type="download" name="images/" location="/images"/>
+
+        <context>dc</context>
+    </web-resource>
+
+    <!-- Issue panel -->
+    <web-panel name="issue-left-context-panel-name" key="issue-left-context-panel-module"
+               location="atl.jira.view.issue.left.context" weight="1000">
+        <description key="issue-left-context-panel-module.description">Issue Left Context Panel - description
+        </description>
+        <resource name="view" type="velocity" location="view/issue-left-context-panel.vm"/>
+        <label key="issue-left-context-panel-module.title"/>
+    </web-panel>
+    <web-panel name="issue-right-context-panel-name" key="issue-right-context-panel-module"
+               location="atl.jira.view.issue.right.context" weight="1000">
+        <description key="issue-right-context-panel-module.description">Issue Right Context Panel - description
+        </description>
+        <context-provider class="com.deiser.jira.dc.context.IssuePanelContextProvider"/>
+        <resource name="view" type="velocity" location="view/issue-right-context-panel.vm"/>
+        <label key="issue-right-context-panel-module.title"/>
+    </web-panel>
+
+    <!-- User profile panel -->
+    <web-panel name="user-profile-panel-name" key="user-profile-panel-module"
+               location="webpanels.user.profile.summary.custom" weight="150">
+        <resource name="view" type="velocity" location="view/user-profile-panel.vm"/>
+    </web-panel>
+
+    <!-- Top navigator bar -->
+    <web-item key="webitem-navigation-bar-module"
+              section="system.top.navigation.bar"
+              weight="50">
+        <description key="webitem-navigation-bar-module.description"/>
+        <label key="webitem-navigation-bar-module.label"/>
+        <link linkId="webitem-navigation-bar-module-link"><![CDATA[/secure/TopBarDCPage.jspa]]></link>
+        <conditions type="AND">
+            <condition class="com.atlassian.jira.plugin.webfragment.conditions.UserLoggedInCondition"/>
+        </conditions>
+    </web-item>
+    <webwork1 key="webwork-navigation-bar-module">
+        <description key="webwork-navigation-bar-module.description"/>
+        <label key="webwork-navigation-bar-module.label"/>
+        <actions>
+            <action name="com.deiser.jira.dc.action.TopBarPageAction" alias="TopBarDCPage">
+                <view name="success">view/top-bar-page.vm</view>
+            </action>
+        </actions>
+    </webwork1>
+
+    <!-- Admin config -->
+    <web-section key="websection-admin-module"
+                 location="admin_plugins_menu"
+                 weight="100">
+        <description key="websection-admin-module.description"/>
+        <label key="websection-admin-module.label"/>
+    </web-section>
+    <web-item key="webitem-admin-module"
+              section="admin_plugins_menu/websection-admin-module"
+              weight="10">
+        <description key="webitem-admin-module.description"/>
+        <label key="webitem-admin-module.label"/>
+        <tooltip key="webitem-admin-module.tooltip"/>
+        <link linkId="webitem-admin-module-link"><![CDATA[/secure/admin/AdminDCPage.jspa]]></link>
+    </web-item>
+    <webwork1 key="webwork-admin-module">
+        <description key="webwork-admin-module.description"/>
+        <label key="webwork-admin-module.label"/>
+        <actions>
+            <action name="com.deiser.jira.dc.action.AdminPageAction" alias="AdminDCPage">
+                <view name="success">view/admin-page.vm</view>
+            </action>
+        </actions>
+    </webwork1>
+
+
+    <!-- Components -->
+
+    <!-- License -->
+    <component key="component-app-license-service"
+               class="com.deiser.jira.dc.service.AppLicenseServiceImpl"
+               public="true">
+        <interface>com.deiser.jira.dc.service.AppLicenseService</interface>
+    </component>
+
+    <!-- Configuration -->
+    <component key="component-configuration-service"
+               class="com.deiser.jira.dc.service.ConfigurationServiceImpl"
+               public="true">
+        <interface>com.deiser.jira.dc.service.ConfigurationService</interface>
+    </component>
+    <component key="component-configuration-manager"
+               class="com.deiser.jira.dc.ao.data.ConfigurationMgrImpl"
+               public="true">
+        <interface>com.deiser.jira.dc.ao.data.ConfigurationMgr</interface>
+    </component>
+
+
+    <!-- Rest components -->
+    <rest key="dc_rest" i18n-name-key="dc_rest.name" path="/dc" version="1.0">
+        <package>com.deiser.jira.dc.rest</package>
+    </rest>
+
+
+    <!-- Active Objects -->
+    <ao key="atlassian_ao">
+        <entity>com.deiser.jira.dc.ao.data.AOConfiguration</entity>
+    </ao>
+
+
+    <!-- Listeners -->
+    <component key="lifecycleListener" i18n-name-key="lifecycleListener.name"
+               class="com.deiser.jira.dc.listener.LifecycleEventListener"/>
+    <component key="projectListener" i18n-name-key="projectListener.name"
+               class="com.deiser.jira.dc.listener.ProjectEventListener"/>
+</atlassian-plugin>

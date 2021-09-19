@@ -1,0 +1,14 @@
+/bin
+/target
+/.settings
+/.classpath
+/.project
+*.bat
+.idea/
+*.iml
+nbactions.xml
+node_modules
+desktop.ini
+*.ini
+*.log
+.DS_Store
